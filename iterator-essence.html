@@ -1,0 +1,39 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+        <title>iterator-essence tests</title>
+        <link rel="stylesheet" type="text/css" href="js/lib/mocha.css">
+
+        <script type="text/javascript" src="js/lib/sinon-1.11.1.js"></script>
+        <script type="text/javascript" src="js/lib/chai.js"></script>
+        <script type="text/javascript" src="js/lib/mocha.js"></script>
+        <script type="text/javascript" src="js/lib/monad.js"></script>
+
+        <script>mocha.setup('bdd')</script>
+        <script>
+          function assert(expr, msg) {
+            if (!expr) throw new Error(msg || 'failed');
+          }
+        </script>
+
+        <script type="text/javascript" src="js/iterator-essence.js"></script>
+        <script type="text/javascript" src="js/iterator-essence_test.js"></script>
+
+        <script type="text/javascript">
+              onload = function(){
+                var runner = mocha.run();
+                // runner.globals(['foo', 'bar', 'baz']);
+
+                // runner.on('test end', function(test){
+                //   console.log(test.fullTitle());
+                // });
+              };
+        </script>
+    </head>
+    <body>
+        <h1 style="margin-left:20px;">iterator-essence test</h1>
+        <div id="mocha"></div>
+    </body>
+</html>
+ 
