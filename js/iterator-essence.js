@@ -14,11 +14,30 @@ function FUNCTOR(modifier) { // function(functor, value)
     if (typeof modifier === 'function') {
       args = modifier(functor, args);
     }
-    
     return functor;
   }
   return point;
 }
+
+var maybe = FUNCTOR(function(functor, args){
+  functor.is_none = false;
+  var value = args[0];
+  functor.value = function(){ return value; }
+  
+  if (value === null 
+   || value === NaN 
+   || value === Infinity 
+   || typeof value === 'undefined'
+  ) {
+    value = null;
+    functor.is_none = true;
+    functor.fmap = function(){
+      return functor;
+    }
+    return null;
+  }
+  return value;
+});
 
 // point receives a function :: () -> a
 var thrower = FUNCTOR(function(functor, args){
