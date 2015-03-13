@@ -24,7 +24,7 @@ describe("a functor factory", function () {
   })
 
   describe("producing trees", function () {
-    it('aaa', function () {
+    it('can be something easy to follow', function () {
       var treeA = node(1,node(2,leaf(3),leaf(4)),leaf(5))
       expect(treeA.label()).to.be.equal(1);
       expect(treeA.right().label()).to.be.equal(5);
@@ -38,7 +38,7 @@ describe("a functor factory", function () {
       expect(treeM.left().left().label()).to.be.equal(6);
     });
 
-    it('bbb', function () {
+    it('can be fmapped multiple times (easy)', function () {
       var treeA = node(1,node(2,leaf(3),leaf(4)),leaf(5))
       var treeM = treeA.fmap(function(x){ return x+x; }).fmap(maybe);
       expect(treeM.label().value()).to.be.equal(2);
@@ -47,7 +47,7 @@ describe("a functor factory", function () {
       expect(treeM.left().left().label().value()).to.be.equal(6);
     });
 
-    it('xxx', function () {
+    it('can be fmapped multiple times (difficult)', function () {
       var treeA = node(1,node(2,leaf('a'),node(4,leaf('b'),leaf('c'))),node(3,node(5,node(7,leaf('d'),leaf('e')),leaf('f')),node(6,leaf('g'),leaf('h'))));
       var treeM = treeA.fmap(function(x){ return x+x; }).fmap(maybe);
       expect(treeM.left().label().value()).to.be.equal(4);
@@ -57,7 +57,7 @@ describe("a functor factory", function () {
     });
   });
 
-  describe("producing maybes", function () {
+  describe('producing maybes', function () {
     it('can wrap a value', function () {
       var maybeA = maybe(123);
       expect(maybeA.value()).to.be.equal(123);

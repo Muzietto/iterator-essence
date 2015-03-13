@@ -8,6 +8,7 @@ function FUNCTOR(modifier) { // function(functor, value)
     var args = Array.prototype.slice.apply(arguments);
     var functor = Object.create(prototype);
     
+    // TODO: if args are functors, should invoke their fmap 
     functor.fmap = function(fab) {
       return point(fab.apply(null,args));
     }
