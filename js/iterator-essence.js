@@ -7,6 +7,7 @@ function FUNCTOR(modifier) { // function(functor, value)
   function point() { // variadic
     var args = Array.prototype.slice.apply(arguments);
     var functor = Object.create(prototype);
+    
     functor.fmap = function(fab) {
       return point(fab.apply(null,args));
     }
@@ -19,11 +20,36 @@ function FUNCTOR(modifier) { // function(functor, value)
   return point;
 }
 
+var leaf = FUNCTOR(function(functor,args){
+  var label = args[0];
+  functor.fmap = function(fab){
+    return leaf(fab(label));
+  };
+  functor.label = function(){ return label; }
+  return args;
+});
+
+var node = FUNCTOR(function(functor,args){
+  var label = args[0];
+  var left = args[1];
+  var right = args[2];
+  
+  functor.fmap = function(fab){
+    return node(fab(label),left.fmap(fab),right.fmap(fab));
+  };
+
+  functor.label = function(){ return label; }
+  functor.left = function(){ return left; }
+  functor.right = function(){ return right; }
+  return args;
+});
+
 var maybe = FUNCTOR(function(functor, args){
   functor.is_none = false;
+  // discard additional arguments given to point
   var value = args[0];
   functor.value = function(){ return value; }
-  
+
   if (value === null 
    || value === NaN 
    || value === Infinity 
@@ -36,7 +62,8 @@ var maybe = FUNCTOR(function(functor, args){
     }
     return null;
   }
-  return value;
+  // must wrap it for fmap
+  return [value];
 });
 
 // point receives a function :: () -> a
@@ -51,6 +78,7 @@ var thrower = FUNCTOR(function(functor, args){
 });
 
 var list = FUNCTOR(function(functor, args){
+  // accept any number of arguments given to point
   functor.args = args;
   functor.fmap = function(fab) {
     var nextArgs = args.map(fab);

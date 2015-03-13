@@ -23,7 +23,41 @@ describe("a functor factory", function () {
     });
   })
 
-  describe("called maybe", function () {
+  describe("producing trees", function () {
+    it('aaa', function () {
+      var treeA = node(1,node(2,leaf(3),leaf(4)),leaf(5))
+      expect(treeA.label()).to.be.equal(1);
+      expect(treeA.right().label()).to.be.equal(5);
+      expect(treeA.left().label()).to.be.equal(2);
+      expect(treeA.left().left().label()).to.be.equal(3);
+
+      var treeM = treeA.fmap(function(x){ return x+x; });
+      expect(treeM.label()).to.be.equal(2);
+      expect(treeM.right().label()).to.be.equal(10);
+      expect(treeM.left().label()).to.be.equal(4);
+      expect(treeM.left().left().label()).to.be.equal(6);
+    });
+
+    it('bbb', function () {
+      var treeA = node(1,node(2,leaf(3),leaf(4)),leaf(5))
+      var treeM = treeA.fmap(function(x){ return x+x; }).fmap(maybe);
+      expect(treeM.label().value()).to.be.equal(2);
+      expect(treeM.right().label().value()).to.be.equal(10);
+      expect(treeM.left().label().value()).to.be.equal(4);
+      expect(treeM.left().left().label().value()).to.be.equal(6);
+    });
+
+    it('xxx', function () {
+      var treeA = node(1,node(2,leaf('a'),node(4,leaf('b'),leaf('c'))),node(3,node(5,node(7,leaf('d'),leaf('e')),leaf('f')),node(6,leaf('g'),leaf('h'))));
+      var treeM = treeA.fmap(function(x){ return x+x; }).fmap(maybe);
+      expect(treeM.left().label().value()).to.be.equal(4);
+      expect(treeM.left().right().left().label().value()).to.be.equal('bb');
+      expect(treeM.right().left().left().label().value()).to.be.equal(14);
+      expect(treeM.right().left().left().right().label().value()).to.be.equal('ee');
+    });
+  });
+
+  describe("producing maybes", function () {
     it('can wrap a value', function () {
       var maybeA = maybe(123);
       expect(maybeA.value()).to.be.equal(123);
@@ -34,12 +68,28 @@ describe("a functor factory", function () {
       expect(maybeB.is_none).to.be.true;
     });
 
-    it.skip('can fmap a function and protect its run from nulls', function () {
-      var fmapped = function(a){ return a; }
+    it('can fmap a function and protect its run from nulls', function () {
+      var mappingF = function(a){
+        if (typeof a === 'number' && !isNaN(a)) {
+          return 'good';
+        } else {
+          return null;
+        }
+      }
+      // this one will crash if given a null
+      var doubler = function(x){ return x+x; }
+
+      var maybeA = maybe(123).fmap(parseInt).fmap(mappingF).fmap(doubler);
+      expect(maybeA.is_none).to.be.false;
+      expect(maybeA.value()).to.be.equal('goodgood');
+
+      var maybeB = maybe('qwe').fmap(parseInt).fmap(mappingF).fmap(doubler);
+      expect(maybeB.is_none).to.be.true;
+      expect(maybeB.value()).to.be.null;
     });
   });
 
-  describe("called thrower", function () {
+  describe("producing throwers", function () {
     it('can wrap a function and make it lazy', function () {
       var fun = function(){ throw(new Error); }
       var throwerA = thrower(fun);
@@ -67,7 +117,7 @@ describe("a functor factory", function () {
       expect(throwerC.extract).to.throw(2);
     });
 
-    it('can prepare and manage a delayed input', function () {
+    it.skip('can prepare and manage a delayed input', function () {
       this.timeout(60*1000);
       var fun = function(){
         return prompt('first time give a DIGIT, second time give a CHARACTER');
@@ -89,7 +139,7 @@ describe("a functor factory", function () {
     });
   });
   
-  describe("called list", function () {
+  describe("producing lists", function () {
 
     it('can wrap no value', function () {
       var listA = list();
