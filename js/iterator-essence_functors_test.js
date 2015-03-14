@@ -93,10 +93,16 @@ describe("a functor factory", function () {
       this.timeout(60*1000);
       alert(this.getLine.run());
     })
-    it('that will be lazy in any situations', function () {
+    it('that will be lazy in any situation', function () {
       this.timeout(60*1000);
       var eniLteg = this.getLine.fmap(function(a){ return a.reverse(); });
       alert(eniLteg.run());
+    })
+    it('that will be lazy in any situation', function () {
+      this.timeout(60*1000);
+      var reverse = function(a){ return a.reverse(); }
+      var eniLteg2 = this.getLine.fmap(reverse).fmap(alert);
+      eniLteg2.run();
     })
   });
 
