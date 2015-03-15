@@ -40,19 +40,21 @@ var getLine = IO(PROMPT);
 var leaf = FUNCTOR(function(functor,args){
   var label = args[0];
   functor.fmap = function(fab){
-    return leaf(fab(label));
+    var fmappedLabel = (label.is_functor) ? label.fmap(fab) : fab(label);
+    return leaf(fmappedLabel);
   };
   functor.label = function(){ return label; }
   return args;
 });
 
 var node = FUNCTOR(function(functor,args){
-  var label = args[0];
+  var label = args[0]; // may be a functor itself
   var left = args[1];
   var right = args[2];
   
   functor.fmap = function(fab){
-    return node(fab(label),left.fmap(fab),right.fmap(fab));
+    var fmappedLabel = (label.is_functor) ? label.fmap(fab) : fab(label);
+    return node(fmappedLabel,left.fmap(fab),right.fmap(fab));
   };
 
   functor.label = function(){ return label; }
@@ -64,6 +66,7 @@ var node = FUNCTOR(function(functor,args){
 ///// MAYBE //////
 var maybe = FUNCTOR(function(functor, args){
   functor.is_none = false;
+  functor.is_some = true;
   // discard additional arguments given to point
   var value = args[0];
   functor.value = function(){ return value; }
@@ -75,6 +78,7 @@ var maybe = FUNCTOR(function(functor, args){
   ) {
     value = null;
     functor.is_none = true;
+    functor.is_some = false;
     functor.fmap = function(){
       return functor;
     }

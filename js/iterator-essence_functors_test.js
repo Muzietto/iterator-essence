@@ -36,7 +36,8 @@ describe("a functor factory", function () {
 
     it('that can be fmapped multiple times (easy)', function () {
       var treeA = node(1,node(2,leaf(3),leaf(4)),leaf(5))
-      var treeM = treeA.fmap(function(x){ return x+x; }).fmap(maybe);
+      var treeM = treeA.fmap(maybe).fmap(function(x){ return x+x; });
+      
       expect(treeM.label().value()).to.be.equal(2);
       expect(treeM.right().label().value()).to.be.equal(10);
       expect(treeM.left().label().value()).to.be.equal(4);
@@ -45,7 +46,7 @@ describe("a functor factory", function () {
 
     it('that can be fmapped multiple times (difficult)', function () {
       var treeA = node(1,node(2,leaf('a'),node(4,leaf('b'),leaf('c'))),node(3,node(5,node(7,leaf('d'),leaf('e')),leaf('f')),node(6,leaf('g'),leaf('h'))));
-      var treeM = treeA.fmap(function(x){ return x+x; }).fmap(maybe);
+      var treeM = treeA.fmap(maybe).fmap(function(x){ return x + x; });
       expect(treeM.left().label().value()).to.be.equal(4);
       expect(treeM.left().right().left().label().value()).to.be.equal('bb');
       expect(treeM.right().left().left().label().value()).to.be.equal(14);
@@ -83,22 +84,46 @@ describe("a functor factory", function () {
       expect(maybeB.is_none).to.be.true;
       expect(maybeB.value()).to.be.null;
     });
+
+    it('that can be put halfway the chain and protect it for the rest of the run', function () {
+      var treeA = node(1,node(2,leaf(3),leaf(4)),leaf(5))
+      var treeM = treeA
+                    .fmap(maybe)
+                    .fmap(function(val){ return (val > 3) ? undefined : val; })
+                    .fmap(function(x){ return x + x; });
+      
+      expect(treeM.label().value()).to.be.equal(2);
+      expect(treeM.right().label().value()).to.be.equal(null);
+      expect(treeM.right().label().is_none).to.be.true;
+      expect(treeM.left().label().value()).to.be.equal(4);
+      expect(treeM.left().right().label().value()).to.be.equal(null);
+      expect(treeM.left().right().label().is_none).to.be.true;
+      
+      var treeMM = treeM.fmap(function(x){ return x + x; });
+      
+      expect(treeMM.label().value()).to.be.equal(4);
+      expect(treeMM.right().label().value()).to.be.equal(null);
+      expect(treeMM.right().label().is_none).to.be.true;
+      expect(treeMM.left().label().value()).to.be.equal(8);
+      expect(treeMM.left().right().label().value()).to.be.equal(null);
+      expect(treeMM.left().right().label().is_none).to.be.true;
+    });
   });
 
   describe("will produce IO actions", function () {
     beforeEach(function(){
       this.getLine = IO(PROMPT);
     });
-    it('that are lazy in the simplest situation', function () {
+    it.skip('that are lazy in the simplest situation', function () {
       this.timeout(60*1000);
       alert(this.getLine.run());
     })
-    it('that will be lazy in any situation', function () {
+    it.skip('that will be lazy in any situation', function () {
       this.timeout(60*1000);
       var eniLteg = this.getLine.fmap(function(a){ return a.reverse(); });
       alert(eniLteg.run());
     })
-    it('that can be fmapped ad libitum', function () {
+    it.skip('that can be fmapped ad libitum', function () {
       var self = this;
       this.timeout(60*1000);
       this.reverse = function(a){ return a.reverse(); };
@@ -112,7 +137,6 @@ describe("a functor factory", function () {
                    + inter(a.substring(alength))
         }
       }
-      var reverse = function(a){ return a.reverse(); }
       var E_N_I_L_T_E_G = this.getLine
                        .fmap(this.reverse)
                        .fmap(this.intersperse('_'))
