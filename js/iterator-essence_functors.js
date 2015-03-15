@@ -1,5 +1,5 @@
 
-function FUNCTOR(modifier) { // function(functor, value)
+function FUNCTOR(modifier){ // function(functor, value)
   'use strict';
   var prototype = Object.create(null);
   prototype.is_functor = true;
@@ -8,10 +8,11 @@ function FUNCTOR(modifier) { // function(functor, value)
     var args = Array.prototype.slice.apply(arguments);
     var functor = Object.create(prototype);
 
-    // if args[0] is a functor, we invoke its fmap 
-    // if args[0] is a function, fmap returns a thunk
     functor.fmap = function(fab) {
+      // if args[0] is a functor, we invoke its fmap
+      // TODO: rewrite this after creating COMPOSE
       if (args[0].is_functor) return args[0].fmap(fab);
+      // if args[0] is a function, fmap returns a thunk
       if (typeof args[0] === 'function') {
         return point(function(){ return fab(args[0]()); });
       }
@@ -25,10 +26,37 @@ function FUNCTOR(modifier) { // function(functor, value)
   return point;
 }
 
-///// PROMPT-ALERT -> IO //////
+function COMPOSE(functorA,functorB){
+  return FUNCTOR(function(functor,args){
+    functor.fmap = function(fab){
+      return args[0].fmap(args[1].fmap(fab));
+    }
+    return args;
+  })(functorA,functorB);
+}
+
+/*
+function COMPOSE(functorA,functorB){
+  var result = { is_functor: true }
+  result.fmap = function(fab){
+    return functorA()
+  }
+  return result;
+}
+*/
+///// CURRIED aka (->) r //////
+var curried = FUNCTOR(function(functor,args){
+  functor.fmap = function(fab){
+    return curried(function(x){ return fab.run(args[0](x)); });
+  }
+  functor.run = args[0];
+  return [args[0]];
+});
+
+///// IO //////
 // point receives a function :: () -> a
-var IO = FUNCTOR(function(io,args){
-  io.run = args[0];
+var IO = FUNCTOR(function(functor,args){
+  functor.run = args[0];
   return [args[0]];
 });
 
@@ -37,6 +65,13 @@ function PROMPT(){ return prompt(); }
 var getLine = IO(PROMPT);
 
 ///// TREE //////
+var tree = function(a,b,c){
+  if (typeof b === 'undefined' && typeof c === 'undefined'){
+    return leaf(a);
+  }
+  return node(a,b,c);
+}
+
 var leaf = FUNCTOR(function(functor,args){
   var label = args[0];
   functor.fmap = function(fab){
