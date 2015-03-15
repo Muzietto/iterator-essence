@@ -98,11 +98,27 @@ describe("a functor factory", function () {
       var eniLteg = this.getLine.fmap(function(a){ return a.reverse(); });
       alert(eniLteg.run());
     })
-    it('that will be lazy in any situation', function () {
+    it('that can be fmapped ad libitum', function () {
+      var self = this;
       this.timeout(60*1000);
+      this.reverse = function(a){ return a.reverse(); };
+      this.toUpperCase = function(a){ return a.toUpperCase(); };
+      this.intersperse = function(i){
+        return function(a) { return inter(a).slice(0,-1); }
+        function inter(a){
+          var alength = Math.floor(a.length / 2);
+          if (alength < 1) return a + i;
+          return inter(a.substring(0,alength))
+                   + inter(a.substring(alength))
+        }
+      }
       var reverse = function(a){ return a.reverse(); }
-      var eniLteg2 = this.getLine.fmap(reverse).fmap(alert);
-      eniLteg2.run();
+      var E_N_I_L_T_E_G = this.getLine
+                       .fmap(this.reverse)
+                       .fmap(this.intersperse('_'))
+                       .fmap(this.toUpperCase)
+                       .fmap(alert);
+      E_N_I_L_T_E_G.run();
     })
   });
 
@@ -157,7 +173,6 @@ describe("a functor factory", function () {
   });
   
   describe("will produce lists", function () {
-
     it('that can wrap no value (aka empty list)', function () {
       var listA = list();
       expect(listA.length).to.be.equal(0);
