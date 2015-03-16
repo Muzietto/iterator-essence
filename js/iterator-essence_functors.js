@@ -26,6 +26,23 @@ function FUNCTOR(modifier){ // function(functor, value)
   return point;
 }
 
+
+function COMPOSE(functorF,functorG){  // COMPOSE Tree Maybe
+  return FUNCTOR(function(functor,args){
+    functor.fmap = function(fab){ // fmap will return a type f(g(a))
+      var value = args[0]; // :: Tree Maybe a
+      var ggg = functorG(value);
+      var fff = functorF(ggg.fmap(fab));
+      return fff;
+    }
+    functor.getCompose = function(a){
+      return functorF(functorG(a));
+    }
+    return args;
+  })
+}
+
+/*
 function COMPOSE(functorA,functorB){
   return FUNCTOR(function(functor,args){
     functor.fmap = function(fab){
@@ -34,7 +51,7 @@ function COMPOSE(functorA,functorB){
     return args;
   })(functorA,functorB);
 }
-
+*/
 /*
 function COMPOSE(functorA,functorB){
   var result = { is_functor: true }
