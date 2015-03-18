@@ -10,7 +10,6 @@ function FUNCTOR(modifier){ // function(functor, value)
 
     functor.fmap = function(fab) {
       // if args[0] is a functor, we invoke its fmap
-      // TODO: rewrite this after creating COMPOSE
       if (args[0].is_functor) return args[0].fmap(fab);
       // if args[0] is a function, fmap returns a thunk
       if (typeof args[0] === 'function') {
@@ -26,45 +25,21 @@ function FUNCTOR(modifier){ // function(functor, value)
   return point;
 }
 
-
-function COMPOSE(functorF,functorG){  // COMPOSE Tree Maybe
-  return FUNCTOR(function(functor,args){
-    functor.fmap = function(fab){ // fmap will return a type f(g(a))
-      var value = args[0]; // :: Tree Maybe a
-      var ggg = functorG(value);
-      var fff = functorF(ggg.fmap(fab));
-      return fff;
-    }
-    functor.getCompose = function(a){
-      return functorF(functorG(a));
-    }
-    return args;
-  })
-}
-
-/*
-function COMPOSE(functorA,functorB){
-  return FUNCTOR(function(functor,args){
-    functor.fmap = function(fab){
-      return args[0].fmap(args[1].fmap(fab));
-    }
-    return args;
-  })(functorA,functorB);
-}
-*/
-/*
-function COMPOSE(functorA,functorB){
-  var result = { is_functor: true }
-  result.fmap = function(fab){
-    return functorA()
-  }
-  return result;
-}
-*/
 ///// CURRIED aka (->) r //////
 var curried = FUNCTOR(function(functor,args){
-  functor.fmap = function(fab){
-    return curried(function(x){ return fab.run(args[0](x)); });
+  functor.fmap = function(fab) {
+    return curried(function(x) {
+      /*
+      // e.g. fab = maybe --> unary gets applied to maybe.fmap
+      if (typeof fab === 'function' && fab(x).is_functor) {
+        return fab(x).fmap(args[0]);
+      }
+      if (x.is_functor){
+        // derailleur out of the curried
+        return x.fmap(fab.run);
+      }*/
+      return fab.run(args[0](x));
+    });
   }
   functor.run = args[0];
   return [args[0]];
