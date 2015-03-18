@@ -29,15 +29,6 @@ function FUNCTOR(modifier){ // function(functor, value)
 var curried = FUNCTOR(function(functor,args){
   functor.fmap = function(fab) {
     return curried(function(x) {
-      /*
-      // e.g. fab = maybe --> unary gets applied to maybe.fmap
-      if (typeof fab === 'function' && fab(x).is_functor) {
-        return fab(x).fmap(args[0]);
-      }
-      if (x.is_functor){
-        // derailleur out of the curried
-        return x.fmap(fab.run);
-      }*/
       return fab.run(args[0](x));
     });
   }
