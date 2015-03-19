@@ -1,5 +1,33 @@
 var expect = chai.expect;
 
+describe('a functor composer',function(){
+  describe('can produce a tree of maybes',function(){
+    beforeEach(function(){
+      this.treeOfMaybes = COMPOSE(tree,maybe);
+      this.doubler = function(x){ return x + x; };
+      this.inverter = function(x){ return 1 / x; }
+    });
+    it('that can be fmapped into another tree of maybes',function(){
+      var startingTree = tree(1,tree(2,tree(3),tree(0)),tree(5));
+      var doubledTreeOfMaybes = this.treeOfMaybes.fmap(this.doubler);
+      expect(doubledTreeOfMaybes(startingTree).label().is_some).to.be.true;
+      expect(doubledTreeOfMaybes(startingTree).label().value()).to.be.equal(2);
+      expect(doubledTreeOfMaybes(startingTree).left().label().is_some).to.be.true;
+      expect(doubledTreeOfMaybes(startingTree).left().label().value()).to.be.equal(4);
+      expect(doubledTreeOfMaybes(startingTree).left().right().label().is_some).to.be.true;
+      expect(doubledTreeOfMaybes(startingTree).left().right().label().value()).to.be.equal(0);
+      
+      var invertedTreeOfMaybes = doubledTreeOfMaybes.fmap(this.inverter).fmap(this.doubler);
+      expect(invertedTreeOfMaybes(startingTree).label().is_some).to.be.true;
+      expect(invertedTreeOfMaybes(startingTree).label().value()).to.be.equal(4);
+      expect(invertedTreeOfMaybes(startingTree).left().label().is_some).to.be.true;
+      expect(invertedTreeOfMaybes(startingTree).left().label().value()).to.be.equal(8);
+      expect(invertedTreeOfMaybes(startingTree).left().right().is_none).to.be.true;
+      expect(invertedTreeOfMaybes(startingTree).left().right().label().value()).to.be.null;
+    });
+  });
+});
+
 describe('a functor factory', function () {
   describe('built without modifier', function () {
     beforeEach(function () {
