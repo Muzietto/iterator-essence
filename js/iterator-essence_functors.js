@@ -26,16 +26,19 @@ function FUNCTOR(modifier){ // function(functor, value)
 }
 
 function COMPOSE(functorF,functorG){ // COMPOSE Tree Maybe
-  return FUNCTOR(function(functor,args){
-    functor.fmap = function(fab){ // fmap will return a type f(g(a))
-      var outerFunctor = args[0]; // :: Tree Maybe a
-      var outerFmap = outerFunctor.fmap
-      return outerFmap(function(innerFunctor){
-        return innerFunctor.fmap(fab);
-      });
-    }
-    return args;
-  })
+  return function(){ // how do you manage multi-arguments functors?
+    // use some functorF.apply(null,functorG.apply(arguments)) to handle any input
+    return FUNCTOR(function(functor,args){
+      functor.fmap = function(fab){ // fmap will return a type f(g(a))
+        var outerFunctor = args[0]; // :: Tree Maybe a
+        var outerFmap = outerFunctor.fmap
+        return outerFmap(function(innerFunctor){
+          return innerFunctor.fmap(fab);
+        });
+      }
+      return args;
+    });
+  }
 }
 
 ///// CURRIED aka (->) r //////
