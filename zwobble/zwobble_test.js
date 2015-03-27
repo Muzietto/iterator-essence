@@ -1,6 +1,6 @@
 var expect = chai.expect;
 
-describe('envy',function(){
+describe('exploring all these static methods',function(){
   
   beforeEach(function(){
     this.four = some(4);
@@ -15,27 +15,24 @@ describe('envy',function(){
       expect(cAdd(1)(2)).to.be.equal(3);
       expect(cAdd(1)(-1)).to.be.equal(0);
     });
-
-
   });
   
-  describe('if this is pure',function(){
+  describe('method map/fmap',function(){
 
-    it('yyyyyyy',function(){
+    it('can start the applicative chain',function(){
       var cAdd = curry(add,2);
-      // some(4).fmap(x -> )
-      var someAdd4 = functor.map(cAdd,this.four);
-      
-      //expect(someAdd4.).to.be.equal(3);
-      var  = pluto = 12;
-      
+
+      // some(4).fmap(x -> y -> x+y)
+      var someAdd4 = functor.map(cAdd,some(4));
+      var funcInTheSome = someAdd4.bind(function(x){ return x; });
+      expect(funcInTheSome(3)).to.be.equal(7);
     });
 
 
   });
-  describe('applyFunctor',function(){
+  describe('method applyFunctor',function(){
     
-    it('adds applicatives',function(){
+    it('continues the applicative chain',function(){
       
       
       
