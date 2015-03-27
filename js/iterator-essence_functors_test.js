@@ -89,6 +89,20 @@ describe('a functor factory', function () {
       expect(maybeB.is_none).to.be.true;
     });
 
+    it('that can use fmap to start the working of the applicative', function () {
+      var curriedAdd = function(x){ // will be bound to the preceding maybe
+        return function(y){
+          return x + y;
+        }
+      }
+      var maybeA = maybe(123);
+      var goApplicativeGo = maybeA.fmap(curriedAdd);
+      expect(goApplicativeGo.is_some).to.be.true;
+
+      // gotta use value because this maybe ain't no applicative (yet...)
+      expect(goApplicativeGo.value()(1)).to.be.equal(124);
+    });
+
     it('that can fmap a function and protect its run from nulls', function () {
       var mappingF = function(a){
         if (typeof a === 'number' && !isNaN(a)) {
@@ -148,6 +162,18 @@ describe('a functor factory', function () {
       var eniLteg = this.getLine.fmap(function(a){ return a.reverse(); });
       alert(eniLteg.run());
     })
+    it.skip('that can use fmap to start the working of the applicative', function () {
+      var curriedAdd = function(x){ // will be bound to the preceding io
+        return function(y){
+          return x + y;
+        }
+      }
+      var goApplicativeGo = this.getLine.fmap(curriedAdd);
+      expect(goApplicativeGo.is_functor).to.be.true;
+
+      // gotta use run because this io ain't no applicative (yet...)
+      alert('the string you gave me plus _WORLD is ' + goApplicativeGo.run()('_WORLD'));
+    });
     it.skip('that can be fmapped ad libitum', function () {
       this.timeout(60*1000);
       var self = this;
@@ -245,6 +271,22 @@ describe('a functor factory', function () {
       expect(listA.fmap(function(x) { return x+x; }).get(2)).to.be.equal(246);
     });
 
+    it('that can use fmap to start the working of the applicative', function () {
+      var listA = list('a','b',123);
+      var curriedAdd = function(x){ // will be bound to the preceding list
+        return function(y){
+          return x + y;
+        }
+      }
+      var goApplicativeGo = listA.fmap(curriedAdd);
+      expect(goApplicativeGo.is_functor).to.be.true;
+
+      // gotta use get because this list ain't no applicative (yet...)
+      expect(goApplicativeGo.get(0)(1)).to.be.equal('a1');
+      expect(goApplicativeGo.get(1)(1)).to.be.equal('b1');
+      expect(goApplicativeGo.get(2)(1)).to.be.equal(124);      
+    });
+
     it('that can be chain-mapped over unary functions', function () {
       var listA = list('a','b',3);
       var doubler = function(x) { return x+x; }
@@ -258,9 +300,15 @@ describe('a functor factory', function () {
 describe('a functor composer',function(){
   describe('can produce a tree of maybes',function(){
     beforeEach(function(){
-      this.tom = COMPOSE(tree,maybe); // treeOfMaybes
+      this.tom = CCOMPOSE(tree,maybe); // treeOfMaybes
       this.doubler = function(x){ return x + x; };
       this.inverter = function(x){ return 1 / x; }
+    });
+    // this one must be implemented otherwise...
+    it.skip('that can be fmapped into another tree of maybes',function(){
+      var tom = this.tom;      
+      var startingTree = tom(1,tom(2,tom(3),tom(0)),tom(5)); // h2 use tom?
+      var pippo = 12;
     });
     // this one must be implemented otherwise...
     it.skip('that can be fmapped into another tree of maybes',function(){

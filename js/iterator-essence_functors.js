@@ -41,6 +41,12 @@ function COMPOSE(functorF,functorG){ // COMPOSE Tree Maybe
   }
 }
 
+function CCOMPOSE(functorF,functorG){ // COMPOSE Tree Maybe
+  return function(){ // how do you manage multi-arguments functors?
+    return functorF.apply(null,functorG.apply(null,arguments));
+  }
+}
+
 ///// CURRIED aka (->) r //////
 var curried = FUNCTOR(function(functor,args){
   functor.fmap = function(fab) {
@@ -105,11 +111,10 @@ var maybe = FUNCTOR(function(functor, args){
   var value = args[0];
   functor.value = function(){ return value; }
 
-  if (value === null 
-   || value === NaN 
-   || value === Infinity 
-   || typeof value === 'undefined'
-  ) {
+  if (value === null
+   || value === NaN
+   || value === Infinity
+   || typeof value === 'undefined'){
     value = null;
     functor.is_none = true;
     functor.is_some = false;
