@@ -20,10 +20,10 @@ describe('exploring all these static methods',function(){
   describe('method map/fmap',function(){
 
     it('can start the applicative chain',function(){
-      var cAdd = curry(add,2);
+      var curriedAdd = curry(add,2);
 
       // some(4).fmap(x -> y -> x+y)
-      var someAdd4 = functor.map(cAdd,some(4));
+      var someAdd4 = functor.map(curriedAdd,some(4));
       var funcInTheSome = someAdd4.bind(function(x){ return x; });
       expect(funcInTheSome(3)).to.be.equal(7);
     });
@@ -33,9 +33,19 @@ describe('exploring all these static methods',function(){
   describe('method applyFunctor',function(){
     
     it('continues the applicative chain',function(){
+      var curriedAdd = curry(add,2);
+      var someAdd4 = functor.map(curriedAdd,some(4));
+      var usingStar = applyFunctor(someAdd4,some(1));
       
+      expect(usingStar.bind(function(x){ return x; })).to.be.equal(5);      
+    });
+    
+    it('handles none\'s respectfully',function(){
+      var curriedAdd = curry(add,2);
+      var someAdd4 = functor.map(curriedAdd,none);
+      var usingStar = applyFunctor(someAdd4,some(1));
       
-      
+      expect(usingStar.toString()).to.be.equal('none');      
     });
     
   });
