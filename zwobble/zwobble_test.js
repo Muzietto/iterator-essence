@@ -35,16 +35,18 @@ describe('exploring all these static methods',function(){
     it('continues the applicative chain',function(){
       var curriedAdd = curry(add,2);
       var someAdd4 = functor.map(curriedAdd,some(4));
+      // someAdd4 <*> some(1)
       var usingStar = applyFunctor(someAdd4,some(1));
-      
+
       expect(usingStar.bind(function(x){ return x; })).to.be.equal(5);      
     });
     
     it('handles none\'s respectfully',function(){
       var curriedAdd = curry(add,2);
       var someAdd4 = functor.map(curriedAdd,none);
+      // none <*> some(1)
       var usingStar = applyFunctor(someAdd4,some(1));
-      
+
       expect(usingStar.toString()).to.be.equal('none');      
     });
     
