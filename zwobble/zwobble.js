@@ -1,4 +1,6 @@
 
+// http://mike.zwobble.org/2012/09/applicative-functors-in-uncurried-languages/
+
 var none = {
     map: function(func) {
         return none;
