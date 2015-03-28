@@ -55,7 +55,7 @@ function add(first, second) {
     return first + second;
 };
 
-functor.applyFunctorUncurried = function(func) {
+functor.applyFunctorUncurried = function(func/*, args*/) {
     var args = Array.prototype.slice.call(arguments, 1);
     return args.reduce(
         functor.applyFunctor,

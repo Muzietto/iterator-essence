@@ -99,7 +99,7 @@ describe('a functor factory', function () {
       var goApplicativeGo = maybeA.fmap(curriedAdd);
       expect(goApplicativeGo.is_some).to.be.true;
 
-      // gotta use value because this maybe ain't no applicative (yet...)
+      // gotta use value because this maybe ain't no applicative (...yet)
       expect(goApplicativeGo.value()(1)).to.be.equal(124);
     });
 
@@ -171,7 +171,7 @@ describe('a functor factory', function () {
       var goApplicativeGo = this.getLine.fmap(curriedAdd);
       expect(goApplicativeGo.is_functor).to.be.true;
 
-      // gotta use run because this io ain't no applicative (yet...)
+      // gotta use run because this io ain't no applicative (...yet)
       alert('the string you gave me plus _WORLD is ' + goApplicativeGo.run()('_WORLD'));
     });
     it.skip('that can be fmapped ad libitum', function () {
@@ -281,7 +281,7 @@ describe('a functor factory', function () {
       var goApplicativeGo = listA.fmap(curriedAdd);
       expect(goApplicativeGo.is_functor).to.be.true;
 
-      // gotta use get because this list ain't no applicative (yet...)
+      // gotta use get because this list ain't no applicative (...yet)
       expect(goApplicativeGo.get(0)(1)).to.be.equal('a1');
       expect(goApplicativeGo.get(1)(1)).to.be.equal('b1');
       expect(goApplicativeGo.get(2)(1)).to.be.equal(124);      
