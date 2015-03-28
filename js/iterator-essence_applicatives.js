@@ -22,10 +22,22 @@ function APPLICATIVE(modifier){ // function(functor, value)
     var args = Array.prototype.slice.apply(arguments);
     var applicative = Object.create(prototype);
     applicative.args = function(){ return args; }
-    // ap aka <*>
-    applicative.ap = function(fun){
-      if (!fun.is_curried) throw 'not a curried function!'
-      var fmapping = applicative.fmap(fun);
+
+    /* ap aka <*>
+     * <*> :: af (a -> b) -> af a -> af b
+     * af (a -> b) <*> :: af a -> af b
+     * af (a -> b) <*> af a :: af b
+     * ATTENTION!!!: therefore, <*> has a meaning 
+     * only when it belongs to an af (a -> b)
+     * EXAMPLES OF af(a->b): 
+     * EX1: pure(x->2*x)
+     * EX2: pure(12).fmap(x->2*x)
+     * EX3: pure(x->y->x+y)
+     * EX4: pure(12).fmap(x->y->x+y) <-- doubtful...
+     */
+    applicative.ap = function(afa){
+      if (!afa.is_applicative) throw 'not an applicative!'
+      var fmapping = applicative.fmap(afa);
       if (fmapping.is_applicative) {
         // monad smell here...
         return pure( function(){ return fmapping.args(); });
