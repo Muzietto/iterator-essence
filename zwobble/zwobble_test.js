@@ -50,7 +50,8 @@ describe('exploring all these static methods',function(){
       // some(4).fmap(x -> y -> x+y) <*> some(2) -> some(6)
       var ccchain = applyFunctor(someAdd4,some(2));
       expect(ccchain.bind(function(x){ return x; })).to.be.equal(6);
-    });  });
+    });
+  });
 
   describe('method applyFunctor, aka <*> or star',function(){
     it('continues the applicative chain',function(){
@@ -70,20 +71,3 @@ describe('exploring all these static methods',function(){
     });
   });
 })
-
-var four = some(4);
-var six = some(6);
-
-functor.applyFunctor(functor.map(curry(add, 2), four), six);
-// => some(10)
-functor.applyFunctor(functor.map(curry(add, 2), none), six);
-// => none
-functor.applyFunctor(functor.map(curry(add, 2), four), none);
-// => none
-
-functor.applyFunctorUncurried(add, four, six);
-// => some(10)
-functor.applyFunctorUncurried(add, none, six);
-// => none
-functor.applyFunctorUncurried(add, four, none);
-// => none
