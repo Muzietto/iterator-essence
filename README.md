@@ -3,7 +3,7 @@ The essence of the iterator pattern in JavaScript
 
 This is a laboratory for studying functors, applicatives (aka idioms) and monads along the lines exposed in [1] and [2].
 
-Language is JavaScript and coding style is inspired to the macroids presented in [3].
+Language is JavaScript and coding style is alike the macroids presented in [3].
 
 At the present moment:
 
