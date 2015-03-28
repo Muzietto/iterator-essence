@@ -53,7 +53,7 @@ describe('exploring all these static methods',function(){
     });
   });
 
-  describe('method applyFunctor, aka <*> or star',function(){
+  describe('method applyFunctor, aka <*> or ap',function(){
     it('continues the applicative chain',function(){
       var curriedAdd = curry(add,2);
       // some(4).fmap(x -> y -> x+y) -> some(y -> 4+y)
