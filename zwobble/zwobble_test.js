@@ -70,5 +70,16 @@ describe('exploring all these static methods',function(){
       var usingStar = applyFunctor(someAdd4,some(1));
       expect(usingStar.toString()).to.be.equal('none');
     });
+
+    it('kicks ass together with pure/some',function(){
+      var curriedAdd = curry(add,2);
+      // some(x -> y -> x+y) <*> some(1) <*> some(2) -> some(3)
+      // static methods mean ugly pyramides
+      var ccchain1 = applyFunctor(applyFunctor(some(curriedAdd),some(1)),some(2));
+      expect(ccchain1.toString()).to.be.equal('some(3)');
+
+      var ccchain2 = applyFunctor(applyFunctor(some(curriedAdd),none),some(2));
+      expect(ccchain2.toString()).to.be.equal('none');
+    });
   });
 })
