@@ -47,10 +47,10 @@ function CCOMPOSE(functorF,functorG){ // COMPOSE Tree Maybe
   }
 }
 
-///// CURRIED aka (->) r //////
-var curried = FUNCTOR(function(functor,args){
+///// UNARY aka (->) r //////
+var unary = FUNCTOR(function(functor,args){
   functor.fmap = function(fab) {
-    return curried(function(x) {
+    return unary(function(x) {
       return fab.run(args[0](x));
     });
   }

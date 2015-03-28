@@ -20,9 +20,9 @@ describe('a functor factory', function () {
 
   describe('will produce curried unaries',function(){
     beforeEach(function () {
-      this.plus2 = curried(function(x){ return x + 2; });
-      this.times3 = curried(function(x){ return x * 3; });
-      this.invert = curried(function(x){ return 1 / x; });
+      this.plus2 = unary(function(x){ return x + 2; });
+      this.times3 = unary(function(x){ return x * 3; });
+      this.invert = unary(function(x){ return 1 / x; });
     });
     it('that can be fmapped into function compositions',function(){
       var chain = this.plus2.fmap(this.times3).fmap(this.invert);

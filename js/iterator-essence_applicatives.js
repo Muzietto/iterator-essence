@@ -1,4 +1,17 @@
 
+function curried(fun,num_args){
+  var result = function(value){
+    if (num_args <= 1){
+      return fun(value);
+    } else {
+      var partial = fun.bind(undefined, value);
+      return curried(partial, num_args - 1);
+    }
+  }
+  result.is_curried = true;
+  return result;
+}
+
 function APPLICATIVE(modifier){ // function(functor, value)
   'use strict';
   var prototype = Object.create(null);
@@ -8,10 +21,18 @@ function APPLICATIVE(modifier){ // function(functor, value)
   function pure() { // variadic because of list
     var args = Array.prototype.slice.apply(arguments);
     var applicative = Object.create(prototype);
-    
-    applicative.star = function(fab){
-      return function(x){
-        return applicative.fmap(fab)(x);
+    applicative.args = function(){ return args; }
+    // ap aka <*>
+    applicative.ap = function(fun){
+      if (!fun.is_curried) throw 'not a curried function!'
+      var fmapping = applicative.fmap(fun);
+      if (fmapping.is_applicative) {
+        // monad smell here...
+        return pure( function(){ return fmapping.args(); });
+      } else {
+        return pure(function(x){
+          return fmapping(x);
+        });
       }
     }
 
@@ -45,6 +66,7 @@ var maybeA = APPLICATIVE(function(applicative, args){
    || value === NaN
    || value === Infinity
    || typeof value === 'undefined'){
+    // let's build the none 
     value = null;
     applicative.is_none = true;
     applicative.is_some = false;
