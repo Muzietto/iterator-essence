@@ -21,6 +21,7 @@ function APPLICATIVE(modifier){ // function(functor, value)
   function pure() { // variadic because of list
     var args = Array.prototype.slice.apply(arguments);
     var applicative = Object.create(prototype);
+    // kinda too easy...
     applicative.args = function(){ return args; }
 
     /* ap aka <*>
@@ -37,24 +38,14 @@ function APPLICATIVE(modifier){ // function(functor, value)
      */
     applicative.ap = function(afa){
       if (!afa.is_applicative) throw 'not an applicative!'
-      var fmapping = applicative.fmap(afa);
-      if (fmapping.is_applicative) {
-        // monad smell here...
-        return pure( function(){ return fmapping.args(); });
-      } else {
-        return pure(function(x){
-          return fmapping(x);
-        });
+      // gotta preserve multiple args
+      return afaFmap.apply(null, args);
+      function afaFmap(mappingFunctions){
+        return afa.fmap(mappingFunctions);
       }
     }
 
     applicative.fmap = function(fab) {
-      // if args[0] is a functor, we invoke its fmap
-      if (args[0].is_functor) return args[0].fmap(fab);
-      // if args[0] is a function, fmap returns a thunk
-      if (typeof args[0] === 'function') {
-        return pure(function(){ return fab(args[0]()); });
-      }
       return pure(fab.apply(null,args));
     }
 
@@ -67,15 +58,20 @@ function APPLICATIVE(modifier){ // function(functor, value)
 }
 
 ///// MAYBE APPLICATIVE //////
-var maybeA = APPLICATIVE(function(applicative, args){
+var maybe = APPLICATIVE(function(applicative, args){
   applicative.is_none = false;
   applicative.is_some = true;
-  // discard additional arguments given to point
+  // discard additional arguments given to pure
   var value = args[0];
   applicative.value = function(){ return value; }
 
+  applicative.xap = function(afa){
+    if (!afa.is_applicative) throw 'not an applicative!'
+    return maybe(value(afa.value()));
+  }
+  
   if (value === null
-   || value === NaN
+   || (typeof value !== 'function' && isNaN(value))
    || value === Infinity
    || typeof value === 'undefined'){
     // let's build the none 
@@ -85,7 +81,7 @@ var maybeA = APPLICATIVE(function(applicative, args){
     applicative.fmap = function(){
       return applicative;
     }
-    applicative.star = function(fab){
+    applicative.ap = function(afa){
       return applicative;
     }
     return null;

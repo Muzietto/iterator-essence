@@ -10,44 +10,75 @@ describe('an applicative factory', function () {
       expect(typeof this.factory).to.be.equal('function');
       expect(this.factory.name).to.be.equal('pure');
     });
-    it('builds plain and chainable applicative instances', function(){
+    it('builds plain applicative instances', function(){
       var applicative123 = this.factory(123);
       expect(applicative123.is_functor).to.be.true;
       expect(applicative123.is_applicative).to.be.true;
       expect(applicative123.ap).to.not.be.undefined;
+    });
+    it('builds fmap-able applicative instances', function(){
+      var applicative123 = this.factory(123);
 
-      var result1 = applicative123.fmap(function(a) { return a * 2; });
-      expect(result1.is_applicative).to.be.true;
-      expect(result1.args()[0]).to.be.equal(246);
+      var applicative246 = applicative123.fmap(function(a) { return a * 2; });
+      expect(applicative246.is_applicative).to.be.true;
+      expect(applicative246.args()[0]).to.be.equal(246);
 
-      //debugger;
-      
-      // EXPERIMENTAL: gotta wrap it with curried() to satisfy <*>
-      var curriedDoubler = curried(function(a) { return a * 2; }, 1)
-      //var result2 = applicative123.ap(this.factory(curriedDoubler));
-      //expect(result2.args()[0]()[0]).to.be.equal(246);
-      // gotta think harder about ap for unaries
-      //var result3 = result2.ap(curriedDoubler);
-      //expect(result3.args()[0]()[0]()).to.be.equal(492);
-      
-      //var result4 = result3.ap(curriedDoubler);
-      //expect(result4.args()[0]()[0]()[0]()).to.be.equal(984);
+      var applicative492 = applicative123
+          .fmap(function(a) { return a * 2; })
+          .fmap(function(a) { return a * 2; });
+      expect(applicative492.is_applicative).to.be.true;
+      expect(applicative492.args()[0]).to.be.equal(492);
+    });
+    it('builds chainable/applicable applicative instances', function(){
+      var applicative123 = this.factory(123);
+      var applicative246 = applicative123.fmap(function(a) { return a * 2; });
+      var applicative492 = applicative246.fmap(function(a) { return a * 2; });
+
+      var curriedAdder = curried(function(a,b,c) { return a+b+c; }, 3);
+
+      var appSum1 = this.factory(curriedAdder)
+        .ap(applicative123)
+        .ap(applicative246)
+        .ap(applicative492);
+      // using the custom-built applicative.args()
+      expect(appSum1.args()[0]).to.be.equal(861);
+
+      var appSum2 = applicative123
+        .fmap(curriedAdder)
+        .ap(applicative246)
+        .ap(applicative492);
+      expect(appSum2.args()[0]).to.be.equal(861);
     });
   });
 
   describe('produces maybes that',function(){
-    it('ought to behave as applicatives',function(){
-      var curriedAdd = curried(function(x, y){ return x + y; });
-      debugger;
-      // some(4).fmap(x -> y -> x+y) -> some(y -> 4+y)
-      //var xxx = maybeA(4).fmap(curriedAdd);
-      //expect(xxx.is_applicative).to.be.true;
-      // some(y -> 4+y) <*> some(1) -> some(5)
-      var yyy = maybeA(curriedAdd).ap(maybeA(1)).ap(maybeA(4));
-      expect(yyy.value()).to.be.equal(5);
+    it('behave as applicatives',function(){
+      var curriedMultiplier = curried(function(x, y){ return x * y; }, 2);
 
-      // some(x -> y -> x+y) <*> some(1) <*> some(2) -> some(3)
+      // some(4).fmap(x -> y -> x+y) -> some(y -> 4+y)
+      var someQuadrupler = maybe(4).fmap(curriedMultiplier);
+      // some(y -> 4*y) <*> some(2) -> some(8)
+      var some8 = someQuadrupler.ap(maybe(2));
+      expect(some8.value()).to.be.equal(8);
+
+      // some(x -> y -> x*y) <*> some(2) <*> some(3) -> some(6)
+      var someDoubler = maybe(curriedMultiplier).ap(maybe(2));
+      var some6 = someDoubler.ap(maybe(3));
+      expect(some6.value()).to.be.equal(6);
+    });
+    it('smoothly take care of nones',function(){
+      var curriedDivider = curried(function(x, y){ return y / x; }, 2);
+
+      // some('abc').fmap(x -> y -> y/x) -> none
+      var hopeless1 = maybe('abc').fmap(curriedDivider);
+      // none <*> some(2) -> none
+      var hopeless2 = hopeless1.ap(maybe(2));
+      expect(hopeless2.is_none).to.be.true;
+
+      // some(x -> y -> y/x) <*> some(0) <*> some(3) -> none
+      var zeroDivisorNone = maybe(curriedDivider).ap(maybe(0));
+      var hopeless3 = zeroDivisorNone.ap(maybe(3));
+      expect(hopeless3.is_none).to.be.true;
     });
   });
-
 });

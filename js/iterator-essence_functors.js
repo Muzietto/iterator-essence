@@ -103,7 +103,7 @@ var node = FUNCTOR(function(functor,args){
   return args;
 });
 
-///// MAYBE //////
+///// MAYBE FUNCTOR //////
 var maybe = FUNCTOR(function(functor, args){
   functor.is_none = false;
   functor.is_some = true;
