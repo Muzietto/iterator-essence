@@ -1,5 +1,6 @@
 
-function curried(fun,num_args){
+function curried(fun){
+  var num_args = fun.length;
   var result = function(value){
     if (num_args <= 1){
       return fun(value);
@@ -40,8 +41,9 @@ function APPLICATIVE(modifier){ // function(functor, value)
       if (!afa.is_applicative) throw 'not an applicative!'
       // gotta preserve multiple args
       return afaFmap.apply(null, args);
-      function afaFmap(mappingFunctions){
-        return afa.fmap(mappingFunctions);
+      function afaFmap(/*mappingFunctions*/){
+        var mappingFunctions = Array.prototype.slice.apply(arguments);
+        return afa.fmap.apply(null, mappingFunctions);
       }
     }
 
@@ -57,6 +59,41 @@ function APPLICATIVE(modifier){ // function(functor, value)
   return pure;
 }
 
+///// UNARY APPLICATIVE aka (->) r //////
+var unary = APPLICATIVE(function(applicative, args){
+  var curriedFunc = curried(args[0]);
+  applicative.fmap = function(unary_fab) {
+    return unary(function(x) {
+      return curriedFunc(unary_fab.run(x));
+    });
+  }
+  applicative.ap = function(afa){
+    if (!afa.is_applicative) throw 'not an applicative!'
+    return unary(function(x){
+      return curriedFunc(x)(afa.run(x));
+    });
+  }
+  applicative.run = curriedFunc;
+  return [curriedFunc];
+});
+
+//////// LIST APPLICATIVE ///////////
+var list = APPLICATIVE(function(applicative, args){
+  // accept any number of arguments given to pure
+  applicative.args = args;
+  applicative.fmap = function(/*fabs*/) {
+    var fabs = Array.prototype.slice.apply(arguments);
+    var nextArgs = fabs.reduce(function(acc, curr){ 
+      return acc.concat(args.map(curr));
+    }, []);
+    return list.apply(null,nextArgs);
+  }
+  applicative.length = args.length;
+  applicative.get = function(pos) { return args[pos]; }
+  applicative.toString = function(){ return args.reduce(function(a, c){ return a + c + ','}, '[').replace(/,$/, ']'); }
+  return args;
+});
+
 ///// MAYBE APPLICATIVE //////
 var maybe = APPLICATIVE(function(applicative, args){
   applicative.is_none = false;
@@ -65,10 +102,13 @@ var maybe = APPLICATIVE(function(applicative, args){
   var value = args[0];
   applicative.value = function(){ return value; }
 
-  applicative.xap = function(afa){
+  /*
+  applicative.ap = function(afa){
     if (!afa.is_applicative) throw 'not an applicative!'
+    // re-implementing the generic applicative.ap
     return maybe(value(afa.value()));
   }
+  */
   
   if (value === null
    || (typeof value !== 'function' && isNaN(value))
