@@ -10,9 +10,9 @@ function FUNCTOR(modifier){ // function(functor, value)
 
     functor.fmap = function(fab) {
       // if args[0] is a functor, we invoke its fmap
-      if (args[0].is_functor) return args[0].fmap(fab);
+      if (args[0] && args[0].is_functor) return args[0].fmap(fab);
       // if args[0] is a function, fmap returns a thunk
-      if (typeof args[0] === 'function') {
+      if (args[0] && typeof args[0] === 'function') {
         return point(function(){ return fab(args[0]()); });
       }
       return point(fab.apply(null,args));
@@ -51,7 +51,7 @@ function CCOMPOSE(functorF,functorG){ // COMPOSE Tree Maybe
 var unary = FUNCTOR(function(functor,args){
   functor.fmap = function(fab) {
     return unary(function(x) {
-      return fab.run(args[0](x));
+      return args[0](fab.run(x));
     });
   }
   functor.run = args[0];
@@ -138,6 +138,7 @@ var thrower = FUNCTOR(function(functor, args){
 var list = FUNCTOR(function(functor, args){
   // accept any number of arguments given to point
   functor.args = args;
+
   functor.fmap = function(fab) {
     var nextArgs = args.map(fab);
     return list.apply(null,nextArgs);

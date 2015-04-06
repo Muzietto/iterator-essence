@@ -26,7 +26,9 @@ describe('a functor factory', function () {
     });
     it('that can be fmapped into function compositions',function(){
       var chain = this.plus2.fmap(this.times3).fmap(this.invert);
-      expect(chain.run(5)).to.be.equal(1/21); // don't try this with 0!!
+      expect(chain.run(5)).to.be.equal(2.6); // 2 + (3 * (1/5))
+      var chain2 = this.invert.fmap(this.times3).fmap(this.plus2);
+      expect(chain2.run(5)).to.be.equal(1/21); // don't try this with 0!!
     });
     // TODO - implement this using COMPOSE
     it.skip('that canNOT be mixed and matched with other functors',function(){
