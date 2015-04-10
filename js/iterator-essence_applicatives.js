@@ -35,11 +35,12 @@ function APPLICATIVE(modifier){ // function(functor, value)
      * EX1: pure(x->2*x)
      * EX2: pure(12).fmap(x->2*x)
      * EX3: pure(x->y->x+y)
-     * EX4: pure(12).fmap(x->y->x+y) <-- doubtful...
+     * EX4: pure(12).fmap(x->y->x+y)
      */
     applicative.ap = function(afa){
       if (!afa.is_applicative) throw 'not an applicative!'
       // gotta preserve multiple args
+      // afa.fmap(args)
       return afaFmap.apply(null, args);
       function afaFmap(/*mappingFunctions*/){
         var mappingFunctions = Array.prototype.slice.apply(arguments);
@@ -61,12 +62,18 @@ function APPLICATIVE(modifier){ // function(functor, value)
 
 ///// UNARY APPLICATIVE aka (->) r //////
 var unary = APPLICATIVE(function(applicative, args){
-  var curriedFunc = curried(args[0]);
+  var curriedFunc = args[0].is_curried ? args[0] : curried(args[0]);
+
+  /* fmap fab fa = x -> fab (fa x)
+   * fab 'fab' fa = x -> fab (fa x)
+   * fmap fab this = x -> fab (this x)
+   */
   applicative.fmap = function(unary_fab) {
     return unary(function(x) {
-      return curriedFunc(unary_fab.run(x));
+      return unary_fab.run(curriedFunc(x));
     });
   }
+  // this <*> afa = x -> this x (afa x)
   applicative.ap = function(afa){
     if (!afa.is_applicative) throw 'not an applicative!'
     return unary(function(x){
@@ -88,6 +95,7 @@ var list = APPLICATIVE(function(applicative, args){
     }, []);
     return list.apply(null,nextArgs);
   }
+  // NB - generic factory implementation of ap is enough
   applicative.length = args.length;
   applicative.get = function(pos) { return args[pos]; }
   applicative.toString = function(){ return args.reduce(function(a, c){ return a + c + ','}, '[').replace(/,$/, ']'); }
@@ -102,14 +110,13 @@ var maybe = APPLICATIVE(function(applicative, args){
   var value = args[0];
   applicative.value = function(){ return value; }
 
-  /*
-  applicative.ap = function(afa){
+  // generic factory implementation of ap is enough
+  applicative.xap = function(afa){ // just as an example
     if (!afa.is_applicative) throw 'not an applicative!'
     // re-implementing the generic applicative.ap
     return maybe(value(afa.value()));
   }
-  */
-  
+
   if (value === null
    || (typeof value !== 'function' && isNaN(value))
    || value === Infinity
