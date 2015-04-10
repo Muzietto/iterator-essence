@@ -25,6 +25,7 @@ function FUNCTOR(modifier){ // function(functor, value)
   return point;
 }
 
+// just an attempt, still not working
 function COMPOSE(functorF,functorG){ // COMPOSE Tree Maybe
   return function(){ // how do you manage multi-arguments functors?
     // use some functorF.apply(null,functorG.apply(arguments)) to handle any input
@@ -41,6 +42,7 @@ function COMPOSE(functorF,functorG){ // COMPOSE Tree Maybe
   }
 }
 
+// just an attempt, still not working
 function CCOMPOSE(functorF,functorG){ // COMPOSE Tree Maybe
   return function(){ // how do you manage multi-arguments functors?
     return functorF.apply(null,functorG.apply(null,arguments));
