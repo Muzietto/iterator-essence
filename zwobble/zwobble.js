@@ -43,12 +43,13 @@ var functor = {
     }
 };
 
-function curry(func, numberOfArguments) {
+function curry(func/*, numberOfArguments*/) {
+    var numberOfArguments = func.length;
     return function(value) {
         if (numberOfArguments === 1) {
             return func(value);
         } else {
-            return curry(func.bind(null, value), numberOfArguments - 1);
+            return curry(func.bind(null, value)/*, numberOfArguments - 1*/);
         }
     };
 }
