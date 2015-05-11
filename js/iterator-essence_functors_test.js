@@ -273,6 +273,18 @@ describe('a functor factory', function () {
       expect(listA.fmap(function(x) { return x+x; }).get(2)).to.be.equal(246);
     });
 
+    it('that can map more functions at once, multiplying input length', function () {
+      var listA = list('a','b',123);
+      var add1 = function(x) { return x+1; };
+      var doubler = function(x) { return x+x; };
+      var result = listA.fmap.call(null, add1, doubler);
+      expect(result.length).to.be.equal(6);
+      expect(result.get(0)).to.be.equal('a1');
+      expect(result.get(1)).to.be.equal('b1');
+      expect(result.get(2)).to.be.equal(124);
+      expect(result.get(5)).to.be.equal(246);
+    });
+
     it('that can use fmap to start the working of the applicative', function () {
       var listA = list('a','b',123);
       var curriedAdd = function(x){ // will be bound to the preceding list

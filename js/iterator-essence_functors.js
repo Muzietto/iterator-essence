@@ -141,10 +141,19 @@ var list = FUNCTOR(function(functor, args){
   // accept any number of arguments given to point
   functor.args = args;
 
+  functor.fmap = function(/*fabs*/) { // unary
+    var fabs = Array.prototype.slice.apply(arguments);
+    var nextArgs = fabs.reduce(function(acc, curr){ 
+      return acc.concat(args.map(curr));
+    }, []);
+    return list.apply(null, nextArgs);
+  }
+/*
   functor.fmap = function(fab) {
     var nextArgs = args.map(fab);
     return list.apply(null,nextArgs);
   }
+*/
   functor.length = args.length;
   functor.get = function(pos) { return args[pos]; }
   return args;
